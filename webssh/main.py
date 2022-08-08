@@ -1,6 +1,7 @@
 import logging
 import tornado.web
 import tornado.ioloop
+from os import environ
 
 from tornado.options import options
 from webssh import handler
@@ -44,7 +45,11 @@ def main():
     options.parse_command_line()
     check_encoding_setting(options.encoding)
     loop = tornado.ioloop.IOLoop.current()
-    app = make_app(make_handlers(loop, options), get_app_settings(options))
+    app_settings = get_app_settings(options)
+    if environ.get('DEBUG') == '1':
+        app_settings['autoreload'] = True
+        app_settings['debug'] = True
+    app = make_app(make_handlers(loop, options), app_settings)
     ssl_ctx = get_ssl_context(options)
     server_settings = get_server_settings(options)
     app_listen(app, options.port, options.address, server_settings)

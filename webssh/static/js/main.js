@@ -164,7 +164,9 @@ jQuery(function($){
 
 
   function toggle_fullscreen(term) {
-    $('#terminal .terminal').toggleClass('fullscreen');
+    form_container.hide();
+    $('#buttonBar').show();
+    // $('#terminal .terminal').toggleClass('fullscreen');
     term.fitAddon.fit();
   }
 

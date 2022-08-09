@@ -578,6 +578,15 @@ class WsockHandler(MixinHandler, tornado.websocket.WebSocketHandler):
                 worker.chan.resize_pty(*resize)
             except (TypeError, struct.error, paramiko.SSHException):
                 pass
+            
+        command = msg.get('command')
+        if command:
+            (stdin, stdout, stderr) = worker.ssh.exec_command('ls /scripts | sort -r')
+            output = stdout.read().decode("utf-8")
+            
+            output_json = json.dumps({'output': str(output)})
+            logging.info(output_json)
+            self.write_message(output_json)
 
         data = msg.get('data')
         if data and isinstance(data, UnicodeType):

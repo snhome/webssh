@@ -443,6 +443,14 @@ jQuery(function($){
       console.log('Current window geometry: ' + JSON.stringify(geometry));
     };
 
+    wssh.command = function(command) {
+      if (!sock) {
+        console.log('Websocket was already closed');
+        return;
+      }
+      sock.send(JSON.stringify({'command': command}));
+    };
+
     wssh.send = function(data) {
       // for console use
       if (!sock) {
@@ -540,7 +548,16 @@ jQuery(function($){
     };
 
     sock.onmessage = function(msg) {
-      read_file_as_text(msg.data, term_write, decoder);
+
+      if (msg.data instanceof Blob) {
+        read_file_as_text(msg.data, term_write, decoder);
+        return
+      }
+      debugger;
+      if (typeof msg.data === 'string' || msg.data instanceof String){
+        console.log('recv str:', msg.data)
+        return;
+      }
     };
 
     sock.onerror = function(e) {

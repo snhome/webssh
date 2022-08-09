@@ -65,7 +65,7 @@ class SSHClient(paramiko.SSHClient):
         two_factor = False
         allowed_types = set()
         two_factor_types = {'keyboard-interactive', 'password'}
-
+        
         if pkey is not None:
             logging.info('Trying publickey authentication')
             try:
@@ -453,6 +453,11 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
 
         try:
             ssh.connect(*args, timeout=options.timeout)
+
+            logging.info('ssh forwarding')
+            s = ssh.get_transport().open_session()
+            paramiko.agent.AgentRequestHandler(s)
+
         except socket.error:
             raise ValueError('Unable to connect to {}:{}'.format(*dst_addr))
         except paramiko.BadAuthenticationType:

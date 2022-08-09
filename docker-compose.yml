@@ -2,9 +2,14 @@ version: '3'
 services:
   web:
     build: .
+    command: python -u run.py
+    user: '0:0' # use root ssh agent
     ports:
     - "8888:8888"
     environment:
       - DEBUG=1
+      - SSH_AUTH_SOCK=${SSH_AUTH_SOCK}
+      - SSH_AGENT_PID=${SSH_AGENT_PID}
     volumes:
       - .:/code
+      - /tmp:/tmp

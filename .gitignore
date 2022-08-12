@@ -66,3 +66,5 @@ known_hosts
 
 node_modules
 webssh/static/css/output.css
+
+.venv

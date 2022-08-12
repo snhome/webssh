@@ -1,0 +1,7 @@
+:8989 {
+  reverse_proxy localhost:8888
+  handle /static/* {
+    uri strip_prefix /static
+		reverse_proxy localhost:8080
+	}  
+}

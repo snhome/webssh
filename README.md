@@ -210,3 +210,18 @@ wssh --port=8080 --sslport=4433 --certfile='cert.crt' --keyfile='cert.key' --xhe
 * For whatever deployment choice you choose, don't forget to enable SSL.
 * By default plain http requests from a public network will be either redirected or blocked and being redirected takes precedence over being blocked.
 * Try to use reject policy as the missing host key policy along with your verified known_hosts, this will prevent man-in-the-middle attacks. The idea is that it checks the system host keys file("~/.ssh/known_hosts") and the application host keys file("./known_hosts") in order, if the ssh server's hostname is not found or the key is not matched, the connection will be aborted.
+
+
+### run script
+
+```
+read -r -d '' script <<'EOF'
+echo a
+sleep 2
+echo b
+EOF
+
+
+eval "$script"
+
+```

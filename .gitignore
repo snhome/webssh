@@ -68,3 +68,4 @@ node_modules
 webssh/static/css/output.css
 
 .venv
+.env

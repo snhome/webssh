@@ -59,13 +59,41 @@ class SSHClient(paramiko.SSHClient):
             raise ValueError('Need a verification code for 2fa.')
         self._transport.auth_interactive(username, handler)
 
+    def start_agent_forward(self):
+        s = self._transport.open_session()
+        paramiko.agent.AgentRequestHandler(s)
+
+    def _ssh_agent_auth(self, username):
+            """
+            Attempt to authenticate to the given transport using any of the private
+            keys available from an SSH agent
+            """
+    
+            logging.debug('[SSH] Attempting to authenticate')
+            agent = paramiko.Agent()
+            agent_keys = agent.get_keys()
+            if len(agent_keys) == 0:
+                return False
+        
+            for key in agent_keys:
+                logging.debug('[SSH] Trying ssh-agent key %s' % key.get_fingerprint().hex())
+                try:
+                    self._transport.auth_publickey(username, key)
+                    logging.debug('[SSH]... success!')
+                    return True
+                except paramiko.SSHException as e:
+                    logging.debug('[SSH]... failed!', e)
+            return False
+
     def _auth(self, username, password, pkey, *args):
         self.password = password
         saved_exception = None
         two_factor = False
         allowed_types = set()
         two_factor_types = {'keyboard-interactive', 'password'}
-        
+        agent_auth_success = self._ssh_agent_auth(username)
+        if agent_auth_success:
+            return
         if pkey is not None:
             logging.info('Trying publickey authentication')
             try:
@@ -453,10 +481,7 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
 
         try:
             ssh.connect(*args, timeout=options.timeout)
-
-            logging.info('ssh forwarding')
-            s = ssh.get_transport().open_session()
-            paramiko.agent.AgentRequestHandler(s)
+            ssh.start_agent_forward()
 
         except socket.error:
             raise ValueError('Unable to connect to {}:{}'.format(*dst_addr))

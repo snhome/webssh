@@ -18,6 +18,7 @@ from webssh.utils import (
     is_valid_encoding
 )
 from webssh.worker import Worker, recycle_worker, clients
+from webssh.ssh_job import get_ssh_job
 
 try:
     from json.decoder import JSONDecodeError
@@ -517,10 +518,11 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
     def head(self):
         pass
 
-    def get(self, id=None):
-        # print('test1', id)
-        logging.info('test1')
-        logging.info(id)
+    def get(self, job_id=None):
+        logging.info(job_id)
+        if job_id:
+            job = get_ssh_job(job_id)
+            logging.info(str(job))        
         self.render('index.html', debug=self.debug, font=self.font)
 
     @tornado.gen.coroutine

@@ -492,7 +492,10 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
     def head(self):
         pass
 
-    def get(self):
+    def get(self, id=None):
+        # print('test1', id)
+        logging.info('test1')
+        logging.info(id)
         self.render('index.html', debug=self.debug, font=self.font)
 
     @tornado.gen.coroutine

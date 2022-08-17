@@ -3,3 +3,4 @@ tornado==5.1.1; python_version < '3.5'
 tornado==6.1.0; python_version >= '3.5'
 pymongo[srv]
 python-dotenv
+nanoid

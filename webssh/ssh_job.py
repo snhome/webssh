@@ -33,5 +33,13 @@ class MongoManager:
 
 def get_ssh_job(id: str):
     jobs_col = MongoManager.col('ssh_jobs')
-
     return jobs_col.find_one({'id': id})
+
+def get_ssh_server(id: str):
+    ser_col = MongoManager.col('ssh_servers')
+    return ser_col.find_one({'id': id})
+
+def get_ssh_job_with_server(job_id: str):
+    job = get_ssh_job(job_id)
+    server = get_ssh_server(job['server_id'])
+    return job, server

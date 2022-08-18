@@ -855,6 +855,11 @@ jQuery(function($){
     decode_uri_component(window.location.search.substring(1)) + '&' + decode_uri_component(window.location.hash.substring(1)),
     form_keys, opts_keys, url_form_data, url_opts_data
   );
+  let searchParams = new URLSearchParams(window.location.search)
+  let token = searchParams.get('t')
+  if (token) {
+    connect_with_options({token})
+  }
   // console.log(url_form_data);
   // console.log(url_opts_data);
 

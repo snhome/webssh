@@ -18,7 +18,7 @@ from webssh.utils import (
     is_valid_encoding
 )
 from webssh.worker import Worker, recycle_worker, clients
-from webssh.ssh_job import get_ssh_job
+from webssh.ssh_job import get_ssh_job_with_server
 
 try:
     from json.decoder import JSONDecodeError
@@ -518,11 +518,8 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
     def head(self):
         pass
 
-    def get(self, job_id=None):
-        logging.info(job_id)
-        if job_id:
-            job = get_ssh_job(job_id)
-            logging.info(str(job))        
+    def get(self):
+
         self.render('index.html', debug=self.debug, font=self.font)
 
     @tornado.gen.coroutine
@@ -537,9 +534,16 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
             raise tornado.web.HTTPError(403, 'Too many live connections.')
 
         self.check_origin()
-
+        command = None
         try:
-            args = self.get_args()
+            token = self.get_value('token')
+            if token:
+                job, server = get_ssh_job_with_server(token)
+                command = job['command'] + '\n'
+                args = (server['hostname'], server['port'], server['username'], server['password'], None)
+            else:
+                args = self.get_args()
+
         except InvalidValueError as exc:
             raise tornado.web.HTTPError(400, str(exc))
 
@@ -547,6 +551,9 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
 
         try:
             worker = yield future
+            if command:
+                worker.data_to_dst.append(command)
+                worker.on_write()
         except (ValueError, paramiko.SSHException) as exc:
             logging.error(traceback.format_exc())
             self.result.update(status=str(exc))

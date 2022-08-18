@@ -166,6 +166,8 @@ jQuery(function($){
   function toggle_fullscreen(term) {
     form_container.hide();
     $('#buttonBar').show();
+    $('#jobKey').addClass('hidden');
+
     // $('#terminal .terminal').toggleClass('fullscreen');
     term.fitAddon.fit();
   }
@@ -804,6 +806,7 @@ jQuery(function($){
       }
       store_items(fields, result.data);
     }
+    
   }
 
   wssh.connect = connect;
@@ -858,7 +861,10 @@ jQuery(function($){
   let searchParams = new URLSearchParams(window.location.search)
   let token = searchParams.get('t')
   if (token) {
-    connect_with_options({token})
+    $('#jobKey').removeClass('hidden');
+    $('#token').val(token);
+    console.log(url_opts_data.term);
+    // connect_with_options({token})
   }
   // console.log(url_form_data);
   // console.log(url_opts_data);

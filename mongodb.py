@@ -2,6 +2,7 @@ import pymongo
 import os
 from dotenv import load_dotenv
 from nanoid import generate
+from datetime import datetime, timedelta
 
 load_dotenv()  # take environment variables from .env.
 
@@ -24,10 +25,15 @@ ssh_jobs = mydb["ssh_jobs"]
 ssh_jobs.create_index('id', unique=True)
 
 jobid = generate(size=11)
-job_dict = { 'command': 'echo hi\nsleep 2\necho done', 'id': jobid, 'server_id': home_server_dict['id']}
+now = datetime.now()
+exp = int(datetime.timestamp(now + timedelta(hours=180)))
+print(exp)
+job_dict = { 'exp': exp, 'secret': '8899', 'command': 'echo hi\nsleep 2\necho done', 'id': jobid, 'server_id': home_server_dict['id']}
 x = ssh_jobs.insert_one(job_dict)
 
 job = ssh_jobs.find_one({'id':jobid})
 server = ssh_servers.find_one({'id': job['server_id']})
 
 print(server['hostname'])
+print(job)
+

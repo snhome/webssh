@@ -7,6 +7,7 @@ import traceback
 import weakref
 import paramiko
 import tornado.web
+import time
 
 from concurrent.futures import ThreadPoolExecutor
 from tornado.ioloop import IOLoop
@@ -538,7 +539,15 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
         try:
             token = self.get_value('token')
             if token:
+                secret = self.get_value('secret')
+                logging.info(secret)
                 job, server = get_ssh_job_with_server(token)
+
+                if secret != job['secret']:
+                    raise tornado.web.HTTPError(403, 'secret wrong.')
+                if time.time() > job['exp']:
+                    raise tornado.web.HTTPError(403, 'job exp.')
+
                 command = job['command'] + '\n'
                 args = (server['hostname'], server['port'], server['username'], server['password'], None)
             else:

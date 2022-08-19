@@ -1,9 +1,7 @@
 import pymongo
 import os
-from dotenv import load_dotenv
 
 def connectdb():
-    load_dotenv()
     db_url = os.environ.get("DATABASE_URL")
     print(db_url)
     return pymongo.MongoClient(db_url)

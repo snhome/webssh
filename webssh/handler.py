@@ -21,6 +21,7 @@ from webssh.utils import (
 from webssh.worker import Worker, recycle_worker, clients
 from webssh.ssh_job import get_ssh_job_with_server
 
+
 try:
     from json.decoder import JSONDecodeError
 except ImportError:
@@ -31,13 +32,33 @@ try:
 except ImportError:
     from urlparse import urlparse
 
+from tornado.auth import (
+    GoogleOAuth2Mixin,
+)
 
 DEFAULT_PORT = 22
 
 swallow_http_errors = True
 redirecting = None
 
-
+class GoogleOAuth2LoginHandler(tornado.web.RequestHandler, GoogleOAuth2Mixin):
+    async def get(self):
+        if self.get_argument('code', False):
+            user = await self.get_authenticated_user(
+                redirect_uri='http://localhost:8888/auth',
+                code=self.get_argument('code'))
+            logging.info(f'gotuser-{user}')
+            logging.info(user)
+            self.redirect('/')
+            # Save the user with e.g. set_secure_cookie
+        else:
+            self.authorize_redirect(
+                redirect_uri='http://localhost:8888/auth',
+                client_id=self.settings['google_oauth']['key'],
+                scope=['email'],
+                response_type='code',
+                extra_params={'approval_prompt': 'auto'})
+        
 class InvalidValueError(Exception):
     pass
 

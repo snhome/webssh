@@ -11,7 +11,10 @@ from webssh.utils import (
     to_ip_address, parse_origin_from_url, is_valid_encoding
 )
 from webssh._version import __version__
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 def print_version(flag):
     if flag:
@@ -59,7 +62,6 @@ base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 font_dirs = ['webssh', 'static', 'css', 'fonts']
 max_body_size = 1 * 1024 * 1024
 
-
 class Font(object):
 
     def __init__(self, filename, dirs):
@@ -85,7 +87,8 @@ def get_app_settings(options):
                               os.path.join(base_dir, *font_dirs)),
             font_dirs[1:]
         ),
-        origin_policy=get_origin_setting(options)
+        origin_policy=get_origin_setting(options),
+        google_oauth={'key': os.environ.get("OAUTH_CLIENT_ID"), 'secret': os.environ.get("OAUTH_SECRET")}
     )
     return settings
 

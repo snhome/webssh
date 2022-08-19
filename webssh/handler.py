@@ -536,13 +536,14 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
 
         self.check_origin()
         command = None
+        readonly = False
         try:
             token = self.get_value('token')
             if token:
                 secret = self.get_value('secret')
                 logging.info(secret)
                 job, server = get_ssh_job_with_server(token)
-
+                readonly = job.get('readonly')
                 if secret != job['secret']:
                     raise tornado.web.HTTPError(403, 'secret wrong.')
                 if time.time() > job['exp']:
@@ -563,6 +564,7 @@ class IndexHandler(MixinHandler, tornado.web.RequestHandler):
             if command:
                 worker.data_to_dst.append(command)
                 worker.on_write()
+            worker.readonly = readonly
         except (ValueError, paramiko.SSHException) as exc:
             logging.error(traceback.format_exc())
             self.result.update(status=str(exc))

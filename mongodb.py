@@ -28,7 +28,7 @@ jobid = generate(size=11)
 now = datetime.now()
 exp = int(datetime.timestamp(now + timedelta(hours=180)))
 print(exp)
-job_dict = { 'exp': exp, 'secret': '8899', 'command': 'echo hi\nsleep 2\necho done', 'id': jobid, 'server_id': home_server_dict['id']}
+job_dict = { 'exp': exp, 'secret': '8899', 'command': 'echo hi\nsleep 2\necho done', 'id': jobid, 'server_id': home_server_dict['id'], 'readonly': True}
 x = ssh_jobs.insert_one(job_dict)
 
 job = ssh_jobs.find_one({'id':jobid})

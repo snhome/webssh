@@ -30,7 +30,7 @@ def recycle_worker(worker):
 
 
 class Worker(object):
-    def __init__(self, loop, ssh, chan, dst_addr):
+    def __init__(self, loop, ssh, chan, dst_addr, readonly=False):
         self.loop = loop
         self.ssh = ssh
         self.chan = chan
@@ -41,6 +41,7 @@ class Worker(object):
         self.handler = None
         self.mode = IOLoop.READ
         self.closed = False
+        self.readonly = readonly
 
     def __call__(self, fd, events):
         if events & IOLoop.READ:
@@ -82,6 +83,9 @@ class Worker(object):
                 self.close(reason='websocket closed')
 
     def on_write(self):
+        if self.readonly:
+            return
+        
         logging.debug('worker {} on write'.format(self.id))
         if not self.data_to_dst:
             return
